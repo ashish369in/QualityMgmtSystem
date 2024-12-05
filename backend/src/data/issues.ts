@@ -14,8 +14,8 @@ export const issues: Issue[] = [
     defectIds: [],
     defects: [],
     tasks: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: 2,
@@ -26,8 +26,8 @@ export const issues: Issue[] = [
     defectIds: [],
     defects: [],
     tasks: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 
@@ -54,7 +54,12 @@ export const updateIssue = (id: number, data: Partial<Issue>) => {
       .filter(Boolean) as Defect[];
   }
   
-  issues[index] = { ...issues[index], ...data, updatedAt: new Date().toISOString() };
+  issues[index] = { 
+    ...issues[index], 
+    ...data,
+    updatedAt: new Date()
+  };
+  
   return issues[index];
 };
 

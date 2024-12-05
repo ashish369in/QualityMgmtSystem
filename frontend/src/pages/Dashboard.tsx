@@ -5,6 +5,7 @@ import { TaskIcon, IssueIcon, ChartIcon } from '../components/icons/TrainingIcon
 import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 import { API_URL } from '../config';
+import { Issue } from '../types/api';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -39,7 +40,7 @@ export default function Dashboard() {
     },
   });
 
-  const activeIssuesCount = issues?.filter(issue => issue.status === 'Open' || issue.status === 'InProgress').length ?? 0;
+  const activeIssuesCount = issues?.filter((issue: Issue) => issue.status === 'Open' || issue.status === 'InProgress').length ?? 0;
   const totalIssues = issues?.length ?? 0;
   const completionRate = totalIssues === 0 ? 0 : Math.round(((totalIssues - activeIssuesCount) / totalIssues) * 100);
 

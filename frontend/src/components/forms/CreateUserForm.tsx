@@ -15,7 +15,7 @@ const userSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  userGroup: z.enum(['LineSide', 'Quality', 'Others']),
+  userGroup: z.enum(['User', 'Quality', 'Admin']),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -101,9 +101,9 @@ export function CreateUserForm() {
               className="w-full rounded-md border border-input bg-background px-3 py-2"
             >
               <option value="">Select user group</option>
-              <option value="LineSide">Line Side</option>
+              <option value="User">User</option>
               <option value="Quality">Quality</option>
-              <option value="Others">Others</option>
+              <option value="Admin">Admin</option>
             </select>
             {errors.userGroup && (
               <p className="text-sm text-destructive mt-1">{errors.userGroup.message}</p>

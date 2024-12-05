@@ -1,4 +1,4 @@
-import { User } from '../types';
+import { User } from './user';
 import { Defect } from './defect';
 import { Task } from './task';
 
@@ -13,8 +13,8 @@ export interface Issue {
   defectIds: number[];
   defects: Defect[];
   tasks: Task[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateIssueDto {

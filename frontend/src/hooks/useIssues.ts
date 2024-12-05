@@ -26,7 +26,7 @@ export function useIssues() {
 
   const updateIssue = useMutation({
     mutationFn: ({ id, ...data }: Partial<Issue> & { id: number }) =>
-      api.updateIssue(id, data),
+      api.updateIssue(id, { ...data }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['issues'] });
       queryClient.invalidateQueries({ queryKey: ['issues', variables.id] });

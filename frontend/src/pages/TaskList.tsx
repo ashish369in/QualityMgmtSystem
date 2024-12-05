@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { useUsers } from '../hooks/useUsers';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import type { Task } from '../types/api';
+import { Card } from '../components/ui/card';
+import { CreateTaskForm } from '../components/forms/CreateTaskForm';
 
 const API_URL = 'http://localhost:3000'; // Make sure this matches your backend port
 
@@ -19,16 +20,13 @@ const getStatusColor = (status: Task['status']) => {
   }
 };
 
-const TaskList = () => {
-  // Fetch tasks
+export default function TaskList() {
   const { data: tasks, isLoading, error } = useQuery({
     queryKey: ['tasks'],
     queryFn: async () => {
       const token = localStorage.getItem('token');
-      console.log('Current auth token:', token);
       
       try {
-        console.log('Fetching tasks from:', `${API_URL}/api/tasks`);
         const response = await fetch(`${API_URL}/api/tasks`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -36,9 +34,7 @@ const TaskList = () => {
           }
         });
         
-        console.log('Response status:', response.status);
         const data = await response.json();
-        console.log('Tasks response data:', data);
         
         if (!response.ok) {
           throw new Error(data.message || 'Failed to fetch tasks');
@@ -52,51 +48,48 @@ const TaskList = () => {
     }
   });
 
-  const { users } = useUsers();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   // Log current state
   console.log('Current user:', user);
-  console.log('Tasks data:', tasks);
+  console.log('Tasks:', tasks);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Tasks</h1>
+        </div>
+        <Card className="p-6">
+          <div>Loading tasks...</div>
+        </Card>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          Error loading tasks: {error instanceof Error ? error.message : 'Unknown error'}
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Tasks</h1>
         </div>
-        <button
-          onClick={() => navigate('/')}
-          className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-        >
-          Back to Home
-        </button>
-      </div>
-    );
-  }
-
-  if (!tasks?.length) {
-    return (
-      <div className="p-4">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          No tasks found
-        </div>
+        <Card className="p-6">
+          <div className="text-red-500">Error loading tasks: {(error as Error).message}</div>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+          >
+            Back to Home
+          </button>
+        </Card>
       </div>
     );
   }
 
   // Filter tasks based on user role
-  const filteredTasks = tasks.filter(task => 
-    user?.userGroup === 'Quality' || task.assignee.id === user?.id
+  const filteredTasks = tasks.filter((task: Task) =>
+    task.assignee.id === user?.id
   );
 
   const handleTaskClick = (taskId: number) => {
@@ -118,16 +111,12 @@ const TaskList = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Tasks</h1>
+        <h1 className="text-3xl font-bold">Tasks</h1>
       </div>
 
-      {isLoading ? (
-        <div>Loading tasks...</div>
-      ) : error ? (
-        <div className="text-red-500">Error loading tasks: {error.message}</div>
-      ) : (
-        <div className="grid gap-4">
-          <div className="grid grid-cols-7 gap-4 p-4 bg-gray-50 border-b font-medium text-sm">
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="grid grid-cols-7 gap-4 p-4 font-medium border-b bg-muted rounded-t-lg">
             <div>Title</div>
             <div>Description</div>
             <div>Status</div>
@@ -137,22 +126,22 @@ const TaskList = () => {
             <div>Updated</div>
           </div>
 
-          <div className="divide-y">
-            {filteredTasks.map(task => (
-              <div 
-                key={task.id} 
-                className="grid grid-cols-7 gap-4 p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+          <div className="space-y-2">
+            {filteredTasks?.map((task) => (
+              <div
+                key={task.id}
+                className="grid grid-cols-7 gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
                 onClick={() => handleTaskClick(task.id)}
               >
                 <div className="font-medium">{task.title}</div>
-                <div className="truncate text-gray-600">{task.description}</div>
+                <div className="text-sm text-gray-600 truncate">{task.description}</div>
                 <div>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
+                  <span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(task.status)}`}>
                     {task.status}
                   </span>
                 </div>
-                <div className="text-gray-600">{task.assignee.username}</div>
-                <div className="text-gray-600">
+                <div className="text-sm text-gray-600">{task.assignee.username}</div>
+                <div className="text-sm text-gray-600">
                   <span className="hover:text-primary" onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/issues/${task.issue.id}`);
@@ -160,19 +149,19 @@ const TaskList = () => {
                     {task.issue.title}
                   </span>
                 </div>
-                <div className="text-gray-500 text-sm">
-                  {formatDate(task.createdAt)}
-                </div>
-                <div className="text-gray-500 text-sm">
-                  {formatDate(task.updatedAt)}
-                </div>
+                <div className="text-sm text-gray-500">{formatDate(task.createdAt)}</div>
+                <div className="text-sm text-gray-500">{formatDate(task.updatedAt)}</div>
               </div>
             ))}
+
+            {(!filteredTasks || filteredTasks.length === 0) && (
+              <div className="text-center p-4 text-gray-500">
+                No tasks found
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </Card>
     </div>
   );
-};
-
-export default TaskList;
+}

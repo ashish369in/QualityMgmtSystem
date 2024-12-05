@@ -1,21 +1,26 @@
 import { useDefects } from '../hooks/useDefects';
 import type { DefectStatus } from '../types/api';
 import { CreateDefectForm } from '../components/forms/CreateDefectForm';
-
-interface Defect {
-  id: number;
-  title: string;
-  description: string;
-  status: DefectStatus;
-  creator: { username: string };
-  createdAt: string;
-}
+import { useToast } from '../components/ui/use-toast';
 
 const DefectList = () => {
   const { defects, isLoading, updateDefect } = useDefects();
+  const { toast } = useToast();
 
   const handleStatusChange = async (id: number, newStatus: DefectStatus) => {
-    await updateDefect.mutateAsync({ id, data: { status: newStatus } });
+    try {
+      await updateDefect.mutateAsync({ id, data: { status: newStatus } });
+      toast({
+        title: "Status Updated",
+        description: `Defect status has been updated to ${newStatus}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update defect status",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {

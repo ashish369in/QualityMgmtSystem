@@ -79,29 +79,25 @@ export const api = {
   },
 
   updateDefect: async (id: number, data: UpdateDefectDto) => {
-    const response = await apiClient.patch<Defect>(`/defects/${id}`, data);
+    const response = await apiClient.put<Defect>(`/defects/${id}`, data);
     return response.data;
   },
 
   // Issues
-  getIssues: async () => {
-    const response = await apiClient.get<Issue[]>('/issues');
-    return response.data;
+  getIssues: () => {
+    return apiClient.get<Issue[]>('/issues').then((res) => res.data);
   },
 
-  getIssue: async (id: number) => {
-    const response = await apiClient.get<Issue>(`/issues/${id}`);
-    return response.data;
+  getIssue: (id: number) => {
+    return apiClient.get<Issue>(`/issues/${id}`).then((res) => res.data);
   },
 
-  createIssue: async (data: CreateIssueDto) => {
-    const response = await apiClient.post<Issue>('/issues', data);
-    return response.data;
+  createIssue: (data: CreateIssueDto) => {
+    return apiClient.post<Issue>('/issues', data).then((res) => res.data);
   },
 
-  updateIssue: async (id: number, data: Partial<Issue>) => {
-    const response = await apiClient.patch<Issue>(`/issues/${id}`, data);
-    return response.data;
+  updateIssue: (id: number, data: Partial<Issue>) => {
+    return apiClient.put<Issue>(`/issues/${id}`, data).then((res) => res.data);
   },
 
   // Tasks

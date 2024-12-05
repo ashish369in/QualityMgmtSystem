@@ -8,8 +8,8 @@ export interface Defect {
   description: string;
   status: DefectStatus;
   creator: User;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateDefectDto {

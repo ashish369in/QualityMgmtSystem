@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLocation } from 'react-router-dom';
 import { Skeleton } from './ui/skeleton';
@@ -8,7 +7,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
   // Don't show loading state for login page

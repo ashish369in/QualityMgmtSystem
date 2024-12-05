@@ -2,7 +2,7 @@ import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { authenticateToken } from '../middleware/auth';
 import { checkRole } from '../middleware/roleAuth';
-import { User, UserGroup } from '../types';
+import { User, UserGroup } from '../types/user';
 import { users, findUserByUsername } from '../data/users';
 
 const router = Router();
@@ -75,7 +75,7 @@ router.post('/users', authenticateToken, checkRole(['Quality']), (req, res) => {
     username,
     email,
     userGroup: userGroup as UserGroup,
-    createdAt: new Date().toISOString()
+    createdAt: new Date()
   };
 
   users.push(newUser);
@@ -122,6 +122,30 @@ router.delete('/users/:id', authenticateToken, checkRole(['Quality']), (req, res
   const deletedUser = users.splice(userIndex, 1)[0];
   console.log('User deleted:', deletedUser);
   res.json({ message: 'User deleted successfully' });
+});
+
+// Register endpoint
+router.post('/register', (req, res) => {
+  const { username, email, password } = req.body;
+
+  // Check if username already exists
+  if (findUserByUsername(username)) {
+    return res.status(400).json({ message: 'Username already exists' });
+  }
+
+  // Create new user (in a real app, you would hash the password)
+  const newUser: User = {
+    id: users.length + 1,
+    username,
+    email,
+    password,
+    userGroup: UserGroup.USER,
+    createdAt: new Date()
+  };
+
+  users.push(newUser);
+  console.log('User created:', newUser);
+  res.status(201).json(newUser);
 });
 
 export default router;

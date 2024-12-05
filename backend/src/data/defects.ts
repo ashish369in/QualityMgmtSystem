@@ -9,8 +9,8 @@ export const defects: Defect[] = [
     description: 'Quality issue in component assembly',
     status: 'New',
     creator: users[0],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: 2,
@@ -18,8 +18,8 @@ export const defects: Defect[] = [
     description: 'Material quality below specification',
     status: 'Working',
     creator: users[0],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 
@@ -33,7 +33,7 @@ export const updateDefect = (id: number, data: Partial<Defect>) => {
   const index = defects.findIndex(d => d.id === id);
   if (index === -1) return null;
   
-  defects[index] = { ...defects[index], ...data, updatedAt: new Date().toISOString() };
+  defects[index] = { ...defects[index], ...data, updatedAt: new Date() };
   return defects[index];
 };
 

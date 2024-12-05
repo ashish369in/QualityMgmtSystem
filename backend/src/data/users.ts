@@ -1,4 +1,4 @@
-import type { User, UserGroup } from '../types';
+import { User, UserGroup } from '../types/user';
 
 // Mock users data (replace with database later)
 export const users: User[] = [
@@ -6,22 +6,22 @@ export const users: User[] = [
     id: 1, 
     username: 'admin',
     email: 'admin@example.com',
-    userGroup: 'Admin' as UserGroup,
-    createdAt: new Date().toISOString(),
+    userGroup: UserGroup.ADMIN,
+    createdAt: new Date(),
   },
   { 
     id: 2, 
     username: 'qualityuser',
     email: 'quality@example.com',
-    userGroup: 'Quality' as UserGroup,
-    createdAt: new Date().toISOString(),
+    userGroup: UserGroup.QUALITY,
+    createdAt: new Date(),
   },
   { 
     id: 3, 
     username: 'user',
     email: 'user@example.com',
-    userGroup: 'User' as UserGroup,
-    createdAt: new Date().toISOString(),
+    userGroup: UserGroup.USER,
+    createdAt: new Date(),
   },
 ];
 

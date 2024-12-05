@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useTasks } from '../../hooks/useTasks';
-import { useIssues } from '../../hooks/useIssues';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -31,7 +30,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { useToast } from '../ui/use-toast';
-import type { Issue, User } from '../../types/api';
+import type { User } from '../../types/api';
 
 const taskSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -44,16 +43,15 @@ const taskSchema = z.object({
 type TaskFormData = z.infer<typeof taskSchema>;
 
 interface CreateTaskFormProps {
-  issue: Issue;
+  issueId: number;
   users: User[];
 }
 
-export function CreateTaskForm({ issue, users }: CreateTaskFormProps) {
+export function CreateTaskForm({ issueId, users }: CreateTaskFormProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { createTask } = useTasks();
-  const { updateIssue } = useIssues();
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -68,20 +66,11 @@ export function CreateTaskForm({ issue, users }: CreateTaskFormProps) {
       // Create the task
       const newTask = await createTask.mutateAsync({
         ...data,
-        issueId: Number(issue.id), // Ensure issueId is a number
-        status: 'Open',
-      });
-
-      // Update the issue with the new task
-      await updateIssue.mutateAsync({
-        id: Number(issue.id), // Ensure id is a number
-        data: {
-          tasks: [...(issue.tasks || []), newTask]
-        }
+        issueId: Number(issueId),
       });
 
       // Invalidate queries to refresh the data
-      queryClient.invalidateQueries(['issues', issue.id]);
+      queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
       
       toast({
         title: 'Success',

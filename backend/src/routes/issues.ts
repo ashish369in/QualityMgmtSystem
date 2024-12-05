@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth';
 import { checkRole } from '../middleware/roleAuth';
 import { Issue } from '../types/issue';
-import { User, UserGroup } from '../types';
+import { User, UserGroup } from '../types/user';
 import { issues, addIssue, updateIssue, deleteIssue, findIssue } from '../data/issues';
 
 const router = Router();
@@ -39,48 +39,39 @@ router.post('/', authenticateToken, (req, res) => {
     return res.status(401).json({ message: 'User not authenticated' });
   }
 
-  const creator: User = {
-    id: req.user.id,
-    username: req.user.username,
-    email: req.user.email,
-    userGroup: req.user.userGroup as UserGroup,
-    createdAt: new Date().toISOString()
-  };
-
   const newIssue: Issue = {
     id: issues.length + 1,
     title,
     description,
     status: 'Open',
-    creator,
+    creator: req.user as User,
     defectIds: defectIds || [],
     defects: [],
     tasks: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 
-  const createdIssue = addIssue(newIssue);
-  res.status(201).json(createdIssue);
+  const savedIssue = addIssue(newIssue);
+  console.log('Created new issue:', savedIssue);
+  res.status(201).json(savedIssue);
 });
 
 // Update issue
-router.patch('/:id', authenticateToken, (req, res) => {
+router.put('/:id', authenticateToken, (req, res) => {
   const id = parseInt(req.params.id);
-  console.log(`PATCH /issues/${id} - Update requested`);
-  console.log('Update data:', req.body);
+  const { title, description, status, defectIds } = req.body;
 
-  const issue = findIssue(id);
-  if (!issue) {
-    return res.status(404).json({ message: 'Issue not found' });
-  }
+  console.log(`PUT /issues/${id} - Update requested`, { title, description, status, defectIds });
 
-  // Only allow status updates if user is Quality role
-  if (req.body.status && req.user?.userGroup !== 'Quality') {
-    return res.status(403).json({ message: 'Only Quality users can update issue status' });
-  }
+  const updatedIssue = updateIssue(id, {
+    ...(title && { title }),
+    ...(description && { description }),
+    ...(status && { status }),
+    ...(defectIds && { defectIds }),
+    updatedAt: new Date()
+  });
 
-  const updatedIssue = updateIssue(id, req.body);
   if (!updatedIssue) {
     return res.status(404).json({ message: 'Issue not found' });
   }
@@ -90,13 +81,17 @@ router.patch('/:id', authenticateToken, (req, res) => {
 });
 
 // Delete issue
-router.delete('/:id', authenticateToken, checkRole(['Quality']), (req, res) => {
+router.delete('/:id', authenticateToken, checkRole([UserGroup.QUALITY, UserGroup.ADMIN]), (req, res) => {
   const id = parseInt(req.params.id);
+  console.log(`DELETE /issues/${id} - Deletion requested`);
+
+  const success = deleteIssue(id);
   
-  if (!deleteIssue(id)) {
+  if (!success) {
     return res.status(404).json({ message: 'Issue not found' });
   }
 
+  console.log(`Issue ${id} deleted successfully`);
   res.status(204).send();
 });
 

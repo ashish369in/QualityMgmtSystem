@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
+import { IssueStatus } from '../types/api';
 
 export default function IssueDetail() {
   const { id } = useParams<{ id: string }>();
@@ -51,10 +52,14 @@ export default function IssueDetail() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 p-4">
-        <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-48 w-full" />
+      <div className="flex justify-center min-h-screen bg-background">
+        <div className="container max-w-[80%] py-6 space-y-6">
+          <Card className="p-6 space-y-4">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-8 w-1/4" />
+          </Card>
+        </div>
       </div>
     );
   }
@@ -63,14 +68,14 @@ export default function IssueDetail() {
     return null;
   }
 
-  const canEdit = user?.role === 'Quality' || user?.id === issue.creator.id;
+  const canEdit = user?.userGroup === 'Quality' || user?.id === issue.creator.id;
 
-  const handleUpdateIssue = async (data: any) => {
+  const handleUpdateIssue = async (data: { status?: IssueStatus }) => {
     console.log('Update data:', {
       id: issue.id,
-      ...data
+      ...data,
     });
-    
+
     try {
       await updateIssue.mutateAsync({
         id: issue.id,
@@ -104,150 +109,204 @@ export default function IssueDetail() {
     }
   };
 
+  const handleStatusChange = async (newStatus: IssueStatus) => {
+    try {
+      await updateIssue.mutateAsync({
+        id: issueId,
+        status: newStatus,
+        updatedAt: new Date()
+      });
+      toast({
+        title: 'Success',
+        description: 'Issue status updated successfully',
+      });
+    } catch (error) {
+      console.error('Error updating issue status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update issue status',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">{issue.title}</h1>
-        <div className="space-x-2">
-          {canEdit && (
-            <Button onClick={() => setIsEditDialogOpen(true)}>Edit Issue</Button>
-          )}
-          <Button variant="outline" onClick={() => navigate('/issues')}>
-            Back to Issues
-          </Button>
-        </div>
-      </div>
-
-      <Card className="p-6 space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold">Description</h2>
-          <p className="mt-2 text-gray-700">{issue.description}</p>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold">Status</h2>
-          {canEdit ? (
-            <div className="mt-2">
-              <Select
-                value={issue.status}
-                onValueChange={async (newStatus) => {
-                  try {
-                    await updateIssue.mutateAsync({
-                      id: issue.id,
-                      status: newStatus,
-                    });
-                    toast({
-                      title: 'Success',
-                      description: 'Issue status updated successfully',
-                    });
-                  } catch (error) {
-                    console.error('Error updating issue status:', error);
-                    toast({
-                      title: 'Error',
-                      description: 'Failed to update issue status',
-                      variant: 'destructive',
-                    });
-                  }
-                }}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Open">Open</SelectItem>
-                  <SelectItem value="InProgress">In Progress</SelectItem>
-                  <SelectItem value="ReadyForClosure">Ready for Closure</SelectItem>
-                  <SelectItem value="Closed">Closed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          ) : (
-            <span className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(issue.status)}`}>
-              {issue.status}
-            </span>
-          )}
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold">Created By</h2>
-          <p className="mt-2 text-gray-700">{issue.creator.username}</p>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold">Related Defects</h2>
-          <div className="mt-2 space-y-2">
-            {issue.defectIds && issue.defectIds.length > 0 ? (
-              issue.defectIds.map((defectId) => {
-                const defect = defects?.find(d => d.id === defectId);
-                return defect ? (
-                  <div key={defect.id} className="p-3 border rounded-lg">
-                    <h3 className="font-medium">{defect.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{defect.description}</p>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-sm text-gray-500">Status: {defect.status}</span>
-                      <span className="text-sm text-gray-500">Created by: {defect.creator.username}</span>
-                    </div>
-                  </div>
-                ) : null;
-              })
-            ) : (
-              <p className="text-gray-500">No defects linked to this issue</p>
+    <div className="flex justify-center min-h-screen bg-background">
+      <div className="container max-w-[80%] py-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Issue Details</h1>
+          <div className="flex gap-4">
+            <Button variant="outline" onClick={() => navigate('/issues')}>
+              Back to Issues
+            </Button>
+            {canEdit && (
+              <Button onClick={() => setIsEditDialogOpen(true)}>Edit Issue</Button>
             )}
           </div>
         </div>
-      </Card>
 
-      <Card className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Tasks</h3>
-          {issue && (
-            <CreateTaskForm 
-              issue={issue} 
-              users={users || []} 
-            />
-          )}
-        </div>
-        <div className="space-y-4">
-          {issue.tasks && issue.tasks.length > 0 ? (
-            issue.tasks.map((task) => (
-              <div
-                key={task.id}
-                className="p-3 border rounded-lg relative"
-              >
-                <div className="absolute top-3 right-3">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
-                    {task.status}
-                  </span>
+        <div className="space-y-6">
+          <Card className="p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-sm font-medium text-gray-500">Title</h2>
+                  <p className="text-lg font-medium">{issue.title}</p>
                 </div>
-                <div className="pr-24">
-                  <h4 className="font-medium">{task.title}</h4>
-                  <p className="text-sm text-gray-500">{task.description}</p>
-                  <div className="mt-1 text-sm text-gray-500">
-                    <span>Assignee: {task.assignee.username}</span>
-                  </div>
+                <div>
+                  <h2 className="text-sm font-medium text-gray-500">Description</h2>
+                  <p className="text-gray-700">{issue.description}</p>
+                </div>
+                <div>
+                  <h2 className="text-sm font-medium text-gray-500">Status</h2>
+                  {canEdit ? (
+                    <Select
+                      value={issue.status}
+                      onValueChange={(value: IssueStatus) =>
+                        handleStatusChange(value)
+                      }
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Open">Open</SelectItem>
+                        <SelectItem value="InProgress">In Progress</SelectItem>
+                        <SelectItem value="Resolved">Resolved</SelectItem>
+                        <SelectItem value="Closed">Closed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span
+                      className={`inline-block px-3 py-1 text-sm rounded-full ${getStatusColor(
+                        issue.status
+                      )}`}
+                    >
+                      {issue.status}
+                    </span>
+                  )}
                 </div>
               </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No tasks for this issue</p>
-          )}
-        </div>
-      </Card>
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-sm font-medium text-gray-500">Created By</h2>
+                  <p>{issue.creator.username}</p>
+                </div>
+                <div>
+                  <h2 className="text-sm font-medium text-gray-500">Created At</h2>
+                  <p>{new Date(issue.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <h2 className="text-sm font-medium text-gray-500">Updated At</h2>
+                  <p>{new Date(issue.updatedAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          </Card>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Issue</DialogTitle>
-          </DialogHeader>
-          {issue && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Tasks</h2>
+              <CreateTaskForm issueId={issueId} users={users} />
+            </div>
+            <Card className="p-6">
+              {issue.tasks && issue.tasks.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-4 font-medium text-gray-500 border-b pb-2">
+                    <div>Title</div>
+                    <div>Status</div>
+                    <div>Assignee</div>
+                    <div>Due Date</div>
+                  </div>
+                  <div className="space-y-2">
+                    {issue.tasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="grid grid-cols-4 gap-4 p-4 hover:bg-accent/50 rounded-lg transition-colors"
+                      >
+                        <div className="font-medium">{task.title}</div>
+                        <div>
+                          <span
+                            className={`inline-block px-3 py-1 text-sm rounded-full ${getStatusColor(
+                              task.status
+                            )}`}
+                          >
+                            {task.status}
+                          </span>
+                        </div>
+                        <div>{task.assignee?.username || 'Unassigned'}</div>
+                        <div>
+                          {task.dueDate
+                            ? new Date(task.dueDate).toLocaleDateString()
+                            : 'No due date'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-center text-gray-500">No tasks found</p>
+              )}
+            </Card>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Related Defects</h2>
+            </div>
+            <Card className="p-6">
+              {issue.defects && issue.defects.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-4 font-medium text-gray-500 border-b pb-2">
+                    <div>Title</div>
+                    <div>Status</div>
+                    <div>Creator</div>
+                    <div>Created At</div>
+                  </div>
+                  <div className="space-y-2">
+                    {issue.defects.map((defect) => (
+                      <div
+                        key={defect.id}
+                        className="grid grid-cols-4 gap-4 p-4 hover:bg-accent/50 rounded-lg transition-colors"
+                      >
+                        <div className="font-medium">{defect.title}</div>
+                        <div>
+                          <span
+                            className={`inline-block px-3 py-1 text-sm rounded-full ${getStatusColor(
+                              defect.status
+                            )}`}
+                          >
+                            {defect.status}
+                          </span>
+                        </div>
+                        <div>{defect.creator.username}</div>
+                        <div>
+                          {new Date(defect.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-center text-gray-500">No defects found</p>
+              )}
+            </Card>
+          </div>
+        </div>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Issue</DialogTitle>
+            </DialogHeader>
             <EditIssueForm
-              issue={issue}
+              issue={issue!}
               onSubmit={handleUpdateIssue}
-              onClose={() => setIsEditDialogOpen(false)}
+              onSuccess={() => setIsEditDialogOpen(false)}
             />
-          )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
