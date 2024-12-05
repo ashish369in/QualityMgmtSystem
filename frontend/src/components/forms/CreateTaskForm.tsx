@@ -63,13 +63,11 @@ export function CreateTaskForm({ issueId, users }: CreateTaskFormProps) {
 
   const onSubmit = async (data: TaskFormData) => {
     try {
-      // Create the task
-      const newTask = await createTask.mutateAsync({
+      await createTask.mutateAsync({
         ...data,
         issueId: Number(issueId),
       });
 
-      // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['issues', issueId] });
       
       toast({

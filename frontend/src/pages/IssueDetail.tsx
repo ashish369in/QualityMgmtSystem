@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useIssues } from '../hooks/useIssues';
 import { useUsers } from '../hooks/useUsers';
 import { useAuth } from '../hooks/useAuth';
-import { useDefects } from '../hooks/useDefects';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
@@ -23,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { IssueStatus } from '../types/api';
+import type { IssueStatus } from '../types/api';
 
 export default function IssueDetail() {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +31,6 @@ export default function IssueDetail() {
   const { user } = useAuth();
   const { users } = useUsers();
   const { useGetIssue, updateIssue } = useIssues();
-  const { defects } = useDefects();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const issueId = parseInt(id!, 10);
@@ -96,6 +94,27 @@ export default function IssueDetail() {
     }
   };
 
+  const handleStatusChange = async (data: { status?: IssueStatus }) => {
+    try {
+      await updateIssue.mutateAsync({
+        id: issueId,
+        ...data,
+        updatedAt: new Date().toISOString()
+      });
+      toast({
+        title: 'Success',
+        description: 'Issue status updated successfully',
+      });
+    } catch (error) {
+      console.error('Error updating issue:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update issue status',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getStatusColor = (status: any) => {
     switch (status) {
       case 'Open':
@@ -106,27 +125,6 @@ export default function IssueDetail() {
         return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const handleStatusChange = async (newStatus: IssueStatus) => {
-    try {
-      await updateIssue.mutateAsync({
-        id: issueId,
-        status: newStatus,
-        updatedAt: new Date()
-      });
-      toast({
-        title: 'Success',
-        description: 'Issue status updated successfully',
-      });
-    } catch (error) {
-      console.error('Error updating issue status:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update issue status',
-        variant: 'destructive',
-      });
     }
   };
 
@@ -163,7 +161,7 @@ export default function IssueDetail() {
                     <Select
                       value={issue.status}
                       onValueChange={(value: IssueStatus) =>
-                        handleStatusChange(value)
+                        handleStatusChange({ status: value })
                       }
                     >
                       <SelectTrigger className="w-[180px]">
@@ -299,10 +297,10 @@ export default function IssueDetail() {
             <DialogHeader>
               <DialogTitle>Edit Issue</DialogTitle>
             </DialogHeader>
-            <EditIssueForm
-              issue={issue!}
+            <EditIssueForm 
+              issue={issue} 
               onSubmit={handleUpdateIssue}
-              onSuccess={() => setIsEditDialogOpen(false)}
+              onClose={() => setIsEditDialogOpen(false)}
             />
           </DialogContent>
         </Dialog>

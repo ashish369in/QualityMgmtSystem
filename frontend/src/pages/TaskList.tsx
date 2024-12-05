@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import type { Task } from '../types/api';
 import { Card } from '../components/ui/card';
-import { CreateTaskForm } from '../components/forms/CreateTaskForm';
 
 const API_URL = 'http://localhost:3000'; // Make sure this matches your backend port
 
@@ -21,7 +20,10 @@ const getStatusColor = (status: Task['status']) => {
 };
 
 export default function TaskList() {
-  const { data: tasks, isLoading, error } = useQuery({
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const { data: tasks, isLoading, error } = useQuery<Task[]>({
     queryKey: ['tasks'],
     queryFn: async () => {
       const token = localStorage.getItem('token');
@@ -47,9 +49,6 @@ export default function TaskList() {
       }
     }
   });
-
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
   // Log current state
   console.log('Current user:', user);
@@ -88,7 +87,7 @@ export default function TaskList() {
   }
 
   // Filter tasks based on user role
-  const filteredTasks = tasks.filter((task: Task) =>
+  const filteredTasks = tasks?.filter((task: Task) =>
     task.assignee.id === user?.id
   );
 

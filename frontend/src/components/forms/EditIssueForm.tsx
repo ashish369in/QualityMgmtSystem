@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import type { Issue, IssueStatus } from '../../types/api';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -19,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Issue } from '../../types/api';
 import { useDefects } from '../../hooks/useDefects';
 
 const issueFormSchema = z.object({
@@ -33,7 +33,7 @@ type FormData = z.infer<typeof issueFormSchema>;
 
 interface EditIssueFormProps {
   issue: Issue;
-  onSubmit: (data: FormData) => void;
+  onSubmit: (data: { status?: IssueStatus }) => Promise<void>;
   onClose: () => void;
 }
 

@@ -47,6 +47,7 @@ export interface Task {
   assignee: User;
   issue: Issue;
   comments: string;
+  dueDate?: string;
   createdAt: string;
   updatedAt: string;
 }
