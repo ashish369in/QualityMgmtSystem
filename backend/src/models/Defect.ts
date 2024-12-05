@@ -1,40 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { User } from "./User";
-import { Issue } from "./Issue";
+import type { User } from './User';
+import type { Issue } from './Issue';
 
 export enum DefectStatus {
-  NEW = "New",
-  WORKING = "Working",
-  RESOLVED = "Resolved"
+  OPEN = 'Open',
+  IN_PROGRESS = 'In Progress',
+  RESOLVED = 'Resolved',
+  CLOSED = 'Closed'
 }
 
-@Entity()
-export class Defect {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column()
-  title!: string;
-
-  @Column("text")
-  description!: string;
-
-  @Column({
-    type: "simple-enum",
-    enum: DefectStatus,
-    default: DefectStatus.NEW
-  })
-  status!: DefectStatus;
-
-  @ManyToOne(() => User, user => user.createdDefects)
-  creator!: User;
-
-  @ManyToMany(() => Issue, issue => issue.defects)
-  issues!: Issue[];
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+export interface Defect {
+  id: number;
+  title: string;
+  description: string;
+  status: DefectStatus;
+  assignee: User;
+  issue: Issue;
+  createdAt: string;
+  updatedAt: string;
 }
