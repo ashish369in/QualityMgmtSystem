@@ -1,0 +1,58 @@
+[33mcommit 0a65ac16efe0225316496ff00d349703823450ed[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 13:46:42 2024 -0800
+
+    Update models and add concurrent server start
+
+[33mcommit 35400b7eb1b3db18c9c18aad1c2f9b658887ed83[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 13:29:32 2024 -0800
+
+    Fix TypeScript and Vite type declarations
+
+[33mcommit ca25916242d789bc7ea9ffdfb3bfe2e559f9403a[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 13:06:30 2024 -0800
+
+    Fix TypeScript and Vite type declarations
+
+[33mcommit 8f1938cecb83a8e14e9be5d754ef9560377f7878[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 13:00:41 2024 -0800
+
+    Fix TypeScript configuration for Vite
+
+[33mcommit 3b5bd7fa055dc20068cf89ae2f4b5a2b36c30012[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 12:51:45 2024 -0800
+
+    Update dependencies and fix TypeScript configurations
+
+[33mcommit 1d2295bf2f1cfe58de59e3de207745529c4b828a[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 12:21:30 2024 -0800
+
+    Fix TypeScript errors and improve form handling
+
+[33mcommit b03e4a55b807c599dda30730ba5eb165c94d3720[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 11:43:48 2024 -0800
+
+    Fix user management and defect status updates
+    
+    - Fixed user selection in CreateTaskForm
+    - Removed Quality role restriction for defect status updates
+    - Added toast notifications for defect status updates
+    - Fixed API client to use PUT instead of PATCH for defect updates
+
+[33mcommit 48d01e17c6a0a4f2ea41e41aee3e60c7a7d587fd[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 09:57:40 2024 -0800
+
+    Updated configuration for production deployment
+
+[33mcommit 491d48f8a37eba40f9a1b1ee28cb912e35537e06[m
+Author: ashish369in <ashish369in@gmail.com>
+Date:   Thu Dec 5 09:54:03 2024 -0800
+
+    Initial commit: Quality Management System
