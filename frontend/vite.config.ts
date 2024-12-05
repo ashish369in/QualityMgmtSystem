@@ -15,8 +15,20 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          ui: ['@radix-ui/react-slot', 'class-variance-authority', 'clsx', 'lucide-react', 'tailwind-merge'],
+          ui: [
+            '@radix-ui/react-slot',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-label',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-select',
+            'class-variance-authority',
+            'clsx',
+            'lucide-react',
+            'tailwind-merge'
+          ],
+          forms: ['react-hook-form', '@hookform/resolvers'],
           query: ['@tanstack/react-query'],
+          animation: ['framer-motion']
         },
       },
     },
