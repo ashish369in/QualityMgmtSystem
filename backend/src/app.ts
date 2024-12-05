@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import authRoutes from './routes/auth';
 import tasksRoutes from './routes/tasks';
 import issuesRoutes from './routes/issues';
@@ -18,16 +19,27 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', tasksRoutes);
+app.use('/api/issues', issuesRoutes);
+app.use('/api/users', usersRoutes);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/tasks', tasksRoutes);
-app.use('/api/issues', issuesRoutes);
-app.use('/api/users', usersRoutes);
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve frontend static files
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../frontend/dist', 'index.html'));
+  });
+}
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
