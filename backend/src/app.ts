@@ -4,6 +4,7 @@ import path from 'path';
 import authRoutes from './routes/auth';
 import tasksRoutes from './routes/tasks';
 import issuesRoutes from './routes/issues';
+import defectRoutes from './routes/defects';
 import usersRoutes from './routes/users';
 
 const app = express();
@@ -48,15 +49,26 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Debug middleware to log requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/issues', issuesRoutes);
+app.use('/api/defects', defectRoutes);
 app.use('/api/users', usersRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Serve static files in production
@@ -73,7 +85,10 @@ if (process.env.NODE_ENV === 'production') {
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 export default app;
