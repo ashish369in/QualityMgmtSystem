@@ -30,7 +30,16 @@ router.post('/login', (req, res) => {
     { expiresIn: '24h' }
   );
 
-  res.json({ token });
+  // Return both token and user data
+  res.json({ 
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      userGroup: user.userGroup
+    }
+  });
 });
 
 // Get current user

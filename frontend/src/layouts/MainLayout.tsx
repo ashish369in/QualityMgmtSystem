@@ -1,9 +1,10 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
 
 export default function MainLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   const navigation = [
@@ -16,6 +17,11 @@ export default function MainLayout() {
   if (user?.userGroup === 'Quality') {
     navigation.push({ name: 'Users', href: '/users' });
   }
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -51,7 +57,7 @@ export default function MainLayout() {
                 ) : null}
               </div>
               <Button
-                onClick={logout}
+                onClick={handleLogout}
                 variant="ghost"
                 className="text-sm font-medium text-gray-700 hover:text-gray-800"
               >

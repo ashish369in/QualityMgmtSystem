@@ -4,13 +4,23 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/quality-management-system/',  // Add this line for GitHub Pages
-  plugins: [react()],
+  plugins: [
+    react({
+      // Include react refresh
+      fastRefresh: true,
+    })
+  ],
+  server: {
+    port: 5173,
+    host: true,
+    strictPort: true,
+    watch: {
+      usePolling: true,
+    }
+  },
   build: {
     outDir: 'dist',
-    sourcemap: false,
-    minify: 'esbuild',
-    chunkSizeWarningLimit: 1000,
+    sourcemap: true, // Enable sourcemaps for debugging
     rollupOptions: {
       output: {
         manualChunks: {
@@ -28,23 +38,14 @@ export default defineConfig({
             'tailwind-merge'
           ],
           forms: ['react-hook-form', '@hookform/resolvers'],
-          query: ['@tanstack/react-query'],
-          animation: ['framer-motion']
-        },
-      },
-    },
-  },
-  server: {
-    port: 5173,
-    host: true,
-  },
-  preview: {
-    port: 5173,
-    host: true,
+          query: ['@tanstack/react-query']
+        }
+      }
+    }
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+      '@': path.resolve(__dirname, './src')
+    }
+  }
 })

@@ -9,7 +9,7 @@ import TaskList from './pages/TaskList';
 import TaskDetail from './pages/TaskDetail';
 import UserManagement from './pages/UserManagement';
 import IssueDetail from './pages/IssueDetail';
-import { AuthProvider } from './components/AuthProvider';
+import { AuthProvider } from './contexts/AuthContext';
 import { UserProvider } from './components/UserProvider';
 import { RoleGuard } from './components/RoleGuard';
 import { Toaster } from "./components/ui/toaster";
@@ -24,40 +24,42 @@ const queryClient = new QueryClient({
   },
 });
 
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="issues" element={<IssueList />} />
+        <Route path="issues/:id" element={<IssueDetail />} />
+        <Route path="defects" element={<DefectList />} />
+        <Route path="tasks" element={<TaskList />} />
+        <Route path="tasks/:id" element={<TaskDetail />} />
+        <Route
+          path="users"
+          element={
+            <RoleGuard allowedRoles={['Admin']}>
+              <UserManagement />
+            </RoleGuard>
+          }
+        />
+      </Route>
+    </Routes>
+  );
+}
+
 function App() {
   return (
-    <>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <AuthProvider>
-            <UserProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<MainLayout />}>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/defects" element={<DefectList />} />
-                    <Route path="/issues" element={<IssueList />} />
-                    <Route path="/issues/:id" element={<IssueDetail />} />
-                    <Route path="/tasks" element={<TaskList />} />
-                    <Route path="/tasks/:id" element={<TaskDetail />} />
-                    <Route
-                      path="/users"
-                      element={
-                        <RoleGuard allowedRoles={['Quality', 'Admin']}>
-                          <UserManagement />
-                        </RoleGuard>
-                      }
-                    />
-                  </Route>
-                </Route>
-              </Routes>
-            </UserProvider>
-          </AuthProvider>
-        </Router>
-      </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          <UserProvider>
+            <AppRoutes />
+          </UserProvider>
+        </AuthProvider>
+      </Router>
       <Toaster />
-    </>
+    </QueryClientProvider>
   );
 }
 

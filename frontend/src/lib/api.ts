@@ -14,7 +14,7 @@ import type {
 
 // Create axios instance with base configuration
 export const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -70,95 +70,78 @@ interface LoginCredentials {
 export const apiClient = {
   // Auth
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const { data } = await api.post<LoginResponse>('/auth/login', credentials);
-    return data;
+    return api.post('/api/auth/login', credentials).then((res) => res.data);
   },
 
   async getCurrentUser(): Promise<User> {
-    const { data } = await api.get<User>('/auth/me');
-    return data;
+    return api.get('/api/auth/me').then((res) => res.data);
   },
 
   // Issues
   async getIssues(): Promise<Issue[]> {
-    const { data } = await api.get<Issue[]>('/issues');
-    return data;
+    return api.get('/api/issues').then((res) => res.data);
   },
 
   async getIssue(id: number): Promise<Issue> {
-    const { data } = await api.get<Issue>(`/issues/${id}`);
-    return data;
+    return api.get(`/api/issues/${id}`).then((res) => res.data);
   },
 
   async createIssue(data: CreateIssueDto): Promise<Issue> {
-    const response = await api.post<Issue>('/issues', data);
-    return response.data;
+    return api.post('/api/issues', data).then((res) => res.data);
   },
 
   async updateIssue(id: number, data: Partial<Issue>): Promise<Issue> {
-    const response = await api.put<Issue>(`/issues/${id}`, data);
-    return response.data;
+    return api.patch(`/api/issues/${id}`, data).then((res) => res.data);
   },
 
   // Defects
   async getDefects(): Promise<Defect[]> {
-    const { data } = await api.get<Defect[]>('/defects');
-    return data;
+    return api.get('/api/defects').then((res) => res.data);
   },
 
   async getDefect(id: number): Promise<Defect> {
-    const { data } = await api.get<Defect>(`/defects/${id}`);
-    return data;
+    return api.get(`/api/defects/${id}`).then((res) => res.data);
   },
 
   async createDefect(data: CreateDefectDto): Promise<Defect> {
-    const response = await api.post<Defect>('/defects', data);
-    return response.data;
+    return api.post('/api/defects', data).then((res) => res.data);
   },
 
   async updateDefect(id: number, data: UpdateDefectDto): Promise<Defect> {
-    const response = await api.put<Defect>(`/defects/${id}`, data);
-    return response.data;
+    return api.patch(`/api/defects/${id}`, data).then((res) => res.data);
   },
 
   // Tasks
   async getTasks(): Promise<Task[]> {
-    const { data } = await api.get<Task[]>('/tasks');
-    return data;
+    return api.get('/api/tasks').then((res) => res.data);
   },
 
   async getTask(id: number): Promise<Task> {
-    const { data } = await api.get<Task>(`/tasks/${id}`);
-    return data;
+    return api.get(`/api/tasks/${id}`).then((res) => res.data);
   },
 
   async createTask(data: CreateTaskDto): Promise<Task> {
-    const response = await api.post<Task>('/tasks', data);
-    return response.data;
+    return api.post('/api/tasks', data).then((res) => res.data);
   },
 
   async updateTask(id: number, data: UpdateTaskDto): Promise<Task> {
-    const response = await api.put<Task>(`/tasks/${id}`, data);
-    return response.data;
+    return api.patch(`/api/tasks/${id}`, data).then((res) => res.data);
   },
 
   // Users
   async getUsers(): Promise<User[]> {
-    const { data } = await api.get<User[]>('/users');
-    return data;
+    return api.get('/api/auth/users').then((res) => res.data);
   },
 
   async createUser(data: Partial<User>): Promise<User> {
-    const response = await api.post<User>('/users', data);
-    return response.data;
+    return api.post('/api/auth/users', data).then((res) => res.data);
   },
 
   async updateUser(id: number, data: Partial<User>): Promise<User> {
-    const response = await api.put<User>(`/users/${id}`, data);
-    return response.data;
+    return api.patch(`/api/auth/users/${id}`, data).then((res) => res.data);
   },
 
   async deleteUser(id: number): Promise<void> {
-    await api.delete(`/users/${id}`);
-  },
+    return api.delete(`/api/auth/users/${id}`).then((res) => res.data);
+  }
 };
