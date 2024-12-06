@@ -12,27 +12,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:5173', // Local development
-  'https://your-vercel-app-name.vercel.app', // Your Vercel domain
-  'https://your-custom-domain.com', // If you have a custom domain
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-}));
-
+app.use(cors());
 app.use(express.json());
 
 // Debug middleware to log requests
@@ -58,13 +38,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(500).json({ message: 'Internal server error' });
 });
 
+// Start server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-  console.log('Available endpoints:');
-  console.log('  POST /api/auth/login');
-  console.log('  GET  /api/auth/me');
-  console.log('  GET  /api/issues');
-  console.log('  POST /api/issues');
-  console.log('  GET  /api/issues/:id');
-  console.log('  PATCH /api/issues/:id');
+  console.log(`Server is running on port ${port}`);
 });
