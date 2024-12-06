@@ -11,22 +11,31 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    const allowedOrigins = [
-      process.env.CORS_ORIGIN,
-      'http://localhost:5173',
-      'http://localhost:3000'
-    ].filter(Boolean);
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
 
-    // Allow any vercel.app domain
-    if (!origin || 
-        allowedOrigins.includes(origin) || 
-        /^https:\/\/.*\.vercel\.app$/.test(origin)) {
+    const allowedDomains = [
+      /^https?:\/\/localhost(:\d+)?$/,  // localhost with any port
+      /^https:\/\/.*\.vercel\.app$/,    // any vercel app
+      /^https:\/\/.*\.onrender\.com$/,  // any render app
+    ];
+
+    const isAllowed = allowedDomains.some(pattern => pattern.test(origin)) ||
+                     origin === process.env.CORS_ORIGIN;
+
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 };
 
