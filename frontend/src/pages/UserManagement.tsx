@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../components/ui/use-toast';
 import { CreateUserForm } from '../components/forms/CreateUserForm';
 import type { User, UserGroup } from '../types/api';
+import { apiClient } from '../api/client';
 import { Trash2 } from 'lucide-react';
-import { useToast } from "../components/ui/use-toast";
-import { API_URL } from '../config';
 
 const UserManagement = () => {
   const queryClient = useQueryClient();
@@ -15,51 +15,19 @@ const UserManagement = () => {
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: async () => {
-      const response = await fetch(`${API_URL}/api/users`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      return response.json();
-    },
+    queryFn: apiClient.getUsers,
   });
 
   const updateUser = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<User> }) => {
-      const response = await fetch(`${API_URL}/api/users/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update user');
-      }
-      return response.json();
-    },
+    mutationFn: ({ id, data }: { id: number; data: Partial<User> }) =>
+      apiClient.updateUser({ id, data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: async (userId: number) => {
-      const response = await fetch(`${API_URL}/api/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete user');
-      }
-    },
+    mutationFn: (userId: number) => apiClient.deleteUser(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },

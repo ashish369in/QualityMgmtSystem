@@ -6,38 +6,19 @@ import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 import { API_URL } from '../config';
 import { Issue } from '../types/api';
+import { apiClient } from '../api/client'; 
 
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: tasks, isLoading: isLoadingTasks } = useQuery({
     queryKey: ['tasks'],
-    queryFn: async () => {
-      const response = await fetch(`${API_URL}/api/tasks`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
-      }
-      return response.json();
-    },
+    queryFn: apiClient.getTasks,
   });
 
   const { data: issues, isLoading: isLoadingIssues } = useQuery({
     queryKey: ['issues'],
-    queryFn: async () => {
-      const response = await fetch(`${API_URL}/api/issues`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch issues');
-      }
-      return response.json();
-    },
+    queryFn: apiClient.getIssues,
   });
 
   const activeIssuesCount = issues?.filter((issue: Issue) => issue.status === 'Open' || issue.status === 'InProgress').length ?? 0;

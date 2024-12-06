@@ -4,8 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import type { Task } from '../types/api';
-
-const API_URL = 'http://localhost:3000';
+import { apiClient } from '../api/client';
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,47 +18,14 @@ const TaskDetail = () => {
   // Fetch task details
   const { data: task, isLoading: isLoadingTask, error: taskError } = useQuery({
     queryKey: ['task', id],
-    queryFn: async () => {
-      const token = localStorage.getItem('token');
-      console.log('Fetching task with ID:', id);
-      
-      const response = await fetch(`${API_URL}/api/tasks/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Response status:', response.status);
-      
-      const data = await response.json();
-      console.log('Response data:', data);
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch task');
-      }
-      return data;
-    },
+    queryFn: () => apiClient.getTask(Number(id)),
     retry: false
   });
 
   // Update task mutation
   const updateTaskMutation = useMutation({
-    mutationFn: async (updates: Partial<Task>) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/tasks/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update task');
-      }
-      return response.json();
-    },
+    mutationFn: (updates: Partial<Task>) => 
+      apiClient.updateTask({ id: Number(id), data: updates }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task', id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });

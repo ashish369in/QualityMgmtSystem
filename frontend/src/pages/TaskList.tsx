@@ -3,8 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import type { Task } from '../types/api';
 import { Card } from '../components/ui/card';
-
-const API_URL = 'http://localhost:3000'; // Make sure this matches your backend port
+import { apiClient } from '../api/client';
 
 const getStatusColor = (status: Task['status']) => {
   switch (status) {
@@ -25,29 +24,7 @@ export default function TaskList() {
 
   const { data: tasks, isLoading, error } = useQuery<Task[]>({
     queryKey: ['tasks'],
-    queryFn: async () => {
-      const token = localStorage.getItem('token');
-      
-      try {
-        const response = await fetch(`${API_URL}/api/tasks`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to fetch tasks');
-        }
-        
-        return data;
-      } catch (err) {
-        console.error('Error fetching tasks:', err);
-        throw err;
-      }
-    }
+    queryFn: apiClient.getTasks, // Use apiClient.getTasks
   });
 
   // Log current state

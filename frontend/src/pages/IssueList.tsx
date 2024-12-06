@@ -1,13 +1,23 @@
-import { useIssues } from '../hooks/useIssues';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../hooks/useAuth';
 import type { Issue } from '../types/api';
+import { Card } from '../components/ui/card';
+import { apiClient } from '../api/client';
 import { CreateIssueForm } from '../components/forms/CreateIssueForm';
 import { Link } from 'react-router-dom';
 
 const IssueList = () => {
-  const { issues, isLoading } = useIssues();
+  const { data: issues, isLoading, error } = useQuery<Issue[]>({
+    queryKey: ['issues'],
+    queryFn: apiClient.getIssues,
+  });
 
   if (isLoading) {
     return <div className="p-4">Loading issues...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4">Error loading issues</div>;
   }
 
   const getStatusColor = (status: Issue['status']) => {

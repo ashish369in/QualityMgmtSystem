@@ -1,15 +1,21 @@
-import { useDefects } from '../hooks/useDefects';
-import type { DefectStatus } from '../types/api';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../hooks/useAuth';
+import type { Defect } from '../types/api';
+import { Card } from '../components/ui/card';
+import { apiClient } from '../api/client';
 import { CreateDefectForm } from '../components/forms/CreateDefectForm';
 import { useToast } from '../components/ui/use-toast';
 
 const DefectList = () => {
-  const { defects, isLoading, updateDefect } = useDefects();
+  const { data: defects, isLoading, error } = useQuery<Defect[]>({
+    queryKey: ['defects'],
+    queryFn: apiClient.getDefects,
+  });
   const { toast } = useToast();
 
-  const handleStatusChange = async (id: number, newStatus: DefectStatus) => {
+  const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      await updateDefect.mutateAsync({ id, data: { status: newStatus } });
+      await apiClient.updateDefect({ id, data: { status: newStatus } });
       toast({
         title: "Status Updated",
         description: `Defect status has been updated to ${newStatus}`,
@@ -25,6 +31,10 @@ const DefectList = () => {
 
   if (isLoading) {
     return <div className="p-4">Loading defects...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4">Error loading defects</div>;
   }
 
   return (
@@ -50,7 +60,7 @@ const DefectList = () => {
             <div>
               <select
                 value={defect.status}
-                onChange={(e) => handleStatusChange(defect.id, e.target.value as DefectStatus)}
+                onChange={(e) => handleStatusChange(defect.id, e.target.value as string)}
                 className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
               >
                 <option value="New">New</option>
