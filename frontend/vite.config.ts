@@ -4,6 +4,7 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/quality-management-system/',  // Add this line for GitHub Pages
   plugins: [react()],
   build: {
     outDir: 'dist',
